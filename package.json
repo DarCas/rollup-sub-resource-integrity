@@ -1,0 +1,53 @@
+{
+  "author": {
+    "email": "dario@casertano.name",
+    "name": "Dario Casertano (DarCas)"
+  },
+  "bugs": {
+    "url": "https://github.com/DarCas/rollup-sub-resource-integrity/issues"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  },
+  "description": "A Rollup plugin that adds Subresource Integrity (SRI) attributes to HTML files to ensure the integrity of scripts and stylesheets using hashing algorithms like SHA-256, SHA-384, and SHA-512.",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "terser": "^5.37.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.6"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/DarCas/rollup-sub-resource-integrity",
+  "keywords": [
+    "build",
+    "html",
+    "integrity",
+    "plugin",
+    "rollup",
+    "security",
+    "sri",
+    "subresource"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.min.js",
+  "name": "@darcas/rollup-sub-resource-integrity",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DarCas/rollup-sub-resource-integrity"
+  },
+  "scripts": {
+    "build": "rm -rf ./dist && tsc && npm run minify",
+    "minify": "terser dist/index.js --source-map -c -m -o dist/index.min.js && unlink dist/index.js",
+    "deploy": "npm run build && npm publish --access public",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "version": "1.0.0"
+}
