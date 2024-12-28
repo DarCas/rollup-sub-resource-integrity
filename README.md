@@ -9,7 +9,7 @@
 
 ## Features
 
-- Automatically calculates integrity hashes for resources in `index.html`.
+- Automatically calculates integrity hashes for resources `*.htm`. and `*.html`.
 - Supports multiple hashing algorithms (`sha256`, `sha384`, `sha512`).
 - Integrates seamlessly into the Rollup build process.
 
@@ -48,12 +48,12 @@ export default defineConfig({
 
 ## How It Works
 
-1. During the `writeBundle` phase, the plugin reads the `index.html` file in the output directory.
+1. During the `writeBundle` phase, the plugin reads the HTML files in the output directory.
 2. It scans for resource tags (`<script>` and `<link>` elements) with `src` or `href` attributes.
 3. For each resource:
     - The file content is read and hashed using the specified algorithm.
-    - An `integrity` attribute is added to the corresponding HTML element in `index.html`.
-4. The updated `index.html` is saved back to the output directory.
+    - An `integrity` attribute is added to the corresponding HTML element.
+4. The updated HTML file is saved back to the output directory.
 
 ## Configuration
 

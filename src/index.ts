@@ -26,24 +26,26 @@ export default function SubResourceIntegrity(algorithm: "sha256" | "sha384" | "s
         writeBundle: (options: OutputOptions, bundle: {
             [ fileName: string ]: OutputAsset
         }): void => {
-            if (bundle[ 'index.html' ]) {
-                const html = readFileSync(`${options.dir}/index.html`, 'utf-8')
-                const $ = load(html)
+            for (const fileName in bundle) {
+                if (fileName.endsWith('.htm') || fileName.endsWith('.html')) {
+                    const html = readFileSync(`${options.dir}/${fileName}`, 'utf-8')
+                    const $ = load(html)
 
-                const elements = $('script[src], link[rel="stylesheet"], link[rel="preload"], link[rel="modulepreload"]')
+                    const elements = $('script[src], link[rel="stylesheet"], link[rel="preload"], link[rel="modulepreload"]')
 
-                for (const element of elements) {
-                    const _this = $(element)
-                    const uri = _this.attr('href') || _this.attr('src')
+                    for (const element of elements) {
+                        const _this = $(element)
+                        const uri = _this.attr('href') || _this.attr('src')
 
-                    if (uri && bundle[ uri.substring(1) ]) {
-                        const source = readFileSync(`${options.dir}/${bundle[ uri.substring(1) ].fileName}`)
+                        if (uri && bundle[ uri.substring(1) ]) {
+                            const source = readFileSync(`${options.dir}/${bundle[ uri.substring(1) ].fileName}`)
 
-                        _this.attr('integrity', [algorithm, hashing(source)].join('-'))
+                            _this.attr('integrity', [algorithm, hashing(source)].join('-'))
+                        }
                     }
-                }
 
-                writeFileSync(`${options.dir}/index.html`, $.html(), 'utf-8')
+                    writeFileSync(`${options.dir}/${fileName}`, $.html(), 'utf-8')
+                }
             }
         },
     }
