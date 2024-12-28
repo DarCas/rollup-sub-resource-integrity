@@ -9,7 +9,7 @@
 
 ## Features
 
-- Automatically calculates integrity hashes for resources `*.htm`. and `*.html`.
+- Automatically calculates integrity hashes for resources `*.htm` and `*.html`.
 - Supports multiple hashing algorithms (`sha256`, `sha384`, `sha512`).
 - Integrates seamlessly into the Rollup build process.
 
