@@ -2,7 +2,7 @@
 
 ![NPM Last Update](https://img.shields.io/npm/last-update/%40darcas%2Frollup-sub-resource-integrity)
 ![NPM Version](https://img.shields.io/npm/v/%40darcas%2Frollup-sub-resource-integrity)
-![NPM Downloads](https://img.shields.io/npm/dw/%40darcas%2Frollup-sub-resource-integrity)
+![NPM Downloads](https://img.shields.io/npm/dy/%40darcas%2Frollup-sub-resource-integrity)
 ![NPM License](https://img.shields.io/npm/l/%40darcas%2Frollup-sub-resource-integrity)
 
 `SubResourceIntegrity` is a Rollup plugin that adds Subresource Integrity (SRI) attributes to your HTML files. SRI helps ensure the integrity of your external resources (e.g., scripts and stylesheets) by allowing browsers to verify that the fetched files are delivered without unexpected manipulation.
