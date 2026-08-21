@@ -1,14 +1,16 @@
 # SubResourceIntegrity
 
-![NPM Last Update](https://img.shields.io/npm/last-update/%40darcas%2Frollup-sub-resource-integrity)
-![NPM Version](https://img.shields.io/npm/v/%40darcas%2Frollup-sub-resource-integrity)
-![NPM Downloads](https://img.shields.io/npm/dy/%40darcas%2Frollup-sub-resource-integrity)
-![NPM License](https://img.shields.io/npm/l/%40darcas%2Frollup-sub-resource-integrity)
+![NPM Last Update](https://img.shields.io/npm/last-update/%40darcas%2Frollup-sub-resource-integrity?style=for-the-badge)
+![NPM Version](https://img.shields.io/npm/v/%40darcas%2Frollup-sub-resource-integrity?style=for-the-badge)
+![NPM Downloads](https://img.shields.io/npm/dy/%40darcas%2Frollup-sub-resource-integrity?style=for-the-badge)
 
-`SubResourceIntegrity` is a Rollup plugin that adds Subresource Integrity (SRI) attributes to your HTML files. SRI helps ensure the integrity of your external resources (e.g., scripts and stylesheets) by allowing browsers to verify that the fetched files are delivered without unexpected manipulation.
+![NPM License](https://img.shields.io/npm/l/%40darcas%2Frollup-sub-resource-integrity?style=for-the-badge)
+
+`SubResourceIntegrity` is a zero-dependency Rollup plugin that adds Subresource Integrity (SRI) attributes to your HTML files. SRI helps ensure the integrity of your external resources (e.g., scripts and stylesheets) by allowing browsers to verify that the fetched files are delivered without unexpected manipulation.
 
 ## Features
 
+- Zero runtime dependencies (since v2.0.0).
 - Automatically calculates integrity hashes for resources `*.htm` and `*.html`.
 - Supports multiple hashing algorithms (`sha256`, `sha384`, `sha512`).
 - Integrates seamlessly into the Rollup build process.
@@ -26,6 +28,19 @@ Or, if you're using yarn:
 ```bash
 yarn add @darcas/rollup-sub-resource-integrity --dev
 ```
+
+> **Note:** Since v2 the plugin has zero runtime dependencies — upgrading from v1 requires no code changes.
+
+## Migrating from v1 to v2
+
+No code changes are required: the plugin API and its usage stay identical.
+
+What changed under the hood:
+
+- **Zero runtime dependencies.** `cheerio` has been removed; installing the plugin no longer pulls in any package.
+- **In-memory processing.** The hook moved from `writeBundle` (read/write from disk) to `generateBundle`, hashing resources directly from the bundle output.
+- **`crossorigin="anonymous"` is added automatically** to every tag that receives an `integrity` attribute when missing, as browsers ignore SRI on cross-origin resources without it.
+- **Node.js >= 18** is now required.
 
 ## Usage
 
@@ -48,12 +63,15 @@ export default defineConfig({
 
 ## How It Works
 
-1. During the `writeBundle` phase, the plugin reads the HTML files in the output directory.
-2. It scans for resource tags (`<script>` and `<link>` elements) with `src` or `href` attributes.
-3. For each resource:
-    - The file content is read and hashed using the specified algorithm.
-    - An `integrity` attribute is added to the corresponding HTML element.
-4. The updated HTML file is saved back to the output directory.
+1. During the `generateBundle` phase, the plugin scans the emitted HTML assets in the bundle.
+2. It looks for resource tags (`<script src>` and `<link rel="stylesheet|preload|modulepreload">`) whose URI matches a file in the same bundle.
+3. For each match:
+    - The content is taken from the in-memory bundle (no disk access) and hashed using the specified algorithm.
+    - An `integrity` attribute is added to the tag.
+    - A `crossorigin="anonymous"` attribute is added when missing, as browsers ignore `integrity` on cross-origin resources without it.
+4. External URIs (`http(s):`, protocol-relative, `data:`) and resources missing from the bundle are silently skipped.
+
+Zero runtime dependencies: HTML rewriting uses a targeted regex instead of a DOM parser.
 
 ## Configuration
 
@@ -79,8 +97,8 @@ If you'd like to contribute to the project, feel free to fork it and create a pu
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
 
 ---
 
-Made with ❤️ by [Dario Casertano (DarCas)](https://github.com/DarCas).
+Made with ❤️ by [Dario Casertano (DarCas)](https://casertano.name).
