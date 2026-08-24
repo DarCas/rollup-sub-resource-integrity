@@ -5,9 +5,10 @@
  */
 
 import { createHash } from 'node:crypto'
-import { posix } from 'node:path'
+import { readdir, readFile, writeFile } from 'node:fs/promises'
+import { posix, relative, resolve } from 'node:path'
 import type { OutputAsset, OutputBundle, OutputChunk, OutputOptions } from 'rollup'
-import type { Plugin } from 'vite'
+import type { Plugin, ResolvedConfig } from 'vite'
 
 type Algorithm = 'sha256' | 'sha384' | 'sha512'
 
@@ -56,10 +57,121 @@ export default function SubResourceIntegrity(algorithm: Algorithm = 'sha384'): P
         .update(content)
         .digest('base64')
 
+    let outDir = ''
+
+    /**
+     * Computes the corrected `integrity` attribute for a single tag by hashing
+     * the file that was actually emitted to disk.
+     *
+     * Returns `null` when the tag must be left untouched (external URI,
+     * ineligible `rel`, missing target).
+     *
+     * @param tagName Lowercase tag name (`script` or `link`).
+     * @param attributes Raw attribute segment of the tag.
+     * @param relativePath Path of the HTML file relative to `outDir` (posix separators).
+     */
+    const digestFromDisk = async (tagName: string, attributes: string, relativePath: string): Promise<string | null> => {
+        const name = tagName.toLowerCase()
+        const uri = getAttribute(attributes, name === 'script' ? 'src' : 'href')
+
+        if (!uri || EXTERNAL_URI_PATTERN.test(uri)) {
+            return null
+        }
+
+        if (name === 'link') {
+            const rel = ( getAttribute(attributes, 'rel') ?? '' )
+                .toLowerCase()
+                .split(/\s+/)
+
+            if (!rel.some(value => ELIGIBLE_LINK_RELS.has(value))) {
+                return null
+            }
+        }
+
+        try {
+            const source = await readFile(resolve(outDir, resolveUri(relativePath, uri)))
+
+            return `${algorithm}-${hash(source)}`
+        } catch {
+            return null
+        }
+    }
+
+    /**
+     * Rewrites the `integrity` attributes of an HTML document by recomputing
+     * every digest from the files that were actually emitted to disk.
+     *
+     * This is necessary because some pipelines (e.g. Vite 8 / Rolldown) may
+     * mutate chunks after the `generateBundle` hook has run, invalidating
+     * any digest computed in memory.
+     *
+     * @param absolutePath Absolute path of the HTML file on disk.
+     * @param relativePath Path of the HTML file relative to `outDir` (posix separators).
+     */
+    const reconcileHtmlFromDisk = async (absolutePath: string, relativePath: string): Promise<void> => {
+        const html = await readFile(absolutePath, 'utf-8')
+        const digests = new Map<string, string>()
+
+        for (const [, tagName, attributes] of html.matchAll(new RegExp(TAG_PATTERN_SOURCE, 'gi'))) {
+            const digest = await digestFromDisk(tagName, attributes, relativePath)
+
+            if (digest !== null) {
+                digests.set(`<${tagName}${attributes}`, digest)
+            }
+        }
+
+        if (digests.size === 0) {
+            return
+        }
+
+        const resolved = html.replace(new RegExp(TAG_PATTERN_SOURCE, 'gi'), (tag: string, tagName: string, attributes: string) => {
+            const digest = digests.get(`<${tagName}${attributes}`)
+
+            if (!digest) {
+                return tag
+            }
+
+            let result = setAttribute(tag, 'integrity', digest)
+
+            if (!getAttribute(attributes, 'crossorigin')) {
+                result = setAttribute(result, 'crossorigin', 'anonymous')
+            }
+
+            return result
+        })
+
+        if (resolved !== html) {
+            await writeFile(absolutePath, resolved)
+        }
+    }
+
     return {
         apply: 'build',
+        closeBundle: async (): Promise<void> => {
+            if (!outDir) {
+                return
+            }
+
+            const entries = await readdir(outDir, {
+                recursive: true,
+                withFileTypes: true,
+            })
+
+            for (const entry of entries) {
+                if (!entry.isFile() || ( !entry.name.endsWith('.html') && !entry.name.endsWith('.htm') )) {
+                    continue
+                }
+
+                const absolutePath = resolve(entry.parentPath ?? entry.path, entry.name)
+
+                await reconcileHtmlFromDisk(absolutePath, posix.join(...relative(outDir, absolutePath).split(/[\\/]/)))
+            }
+        },
+        configResolved: (config: ResolvedConfig): void => {
+            outDir = resolve(config.root, config.build.outDir)
+        },
         enforce: 'post',
-        generateBundle: (options: OutputOptions, bundle: OutputBundle): void => {
+        generateBundle: (_: OutputOptions, bundle: OutputBundle): void => {
             for (const fileName of Object.keys(bundle)) {
                 if (!fileName.endsWith('.html') && !fileName.endsWith('.htm')) {
                     continue
