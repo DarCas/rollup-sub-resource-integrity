@@ -22,6 +22,10 @@ function getAttribute(tag: string, name: string): string | null {
     return match ? ( match[ 1 ] ?? match[ 2 ] ) : null
 }
 
+function hasAttribute(tag: string, name: string): boolean {
+    return new RegExp(`\\b${name}(?=\\s|=|/?>|$)`, 'i').test(tag)
+}
+
 function setAttribute(tag: string, name: string, value: string): string {
     const pattern = new RegExp(`\\b${name}\\s*=\\s*(?:"[^"]*"|'[^']*')`, 'i')
 
@@ -133,7 +137,7 @@ export default function SubResourceIntegrity(algorithm: Algorithm = 'sha384'): P
 
             let result = setAttribute(tag, 'integrity', digest)
 
-            if (!getAttribute(attributes, 'crossorigin')) {
+            if (!hasAttribute(tag, 'crossorigin')) {
                 result = setAttribute(result, 'crossorigin', 'anonymous')
             }
 
@@ -208,7 +212,7 @@ export default function SubResourceIntegrity(algorithm: Algorithm = 'sha384'): P
 
                     let result = setAttribute(tag, 'integrity', `${algorithm}-${hash(source)}`)
 
-                    if (!getAttribute(attributes, 'crossorigin')) {
+                    if (!hasAttribute(tag, 'crossorigin')) {
                         result = setAttribute(result, 'crossorigin', 'anonymous')
                     }
 
