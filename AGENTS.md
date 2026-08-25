@@ -28,7 +28,7 @@ Publishing is automated: pushing a `v*` tag triggers `.github/workflows/publish.
 
 ## Website (landing) — separate build
 
-The repo also hosts a marketing/landing site under `website/` (React 19 + Vite 7 + TS, custom CSS, no UI libs), deployed to GitHub Pages at `https://sri.os.darcas.app/` via `.github/workflows/pages.yml` (trigger: push on `main` touching `website/**`, artifact upload + `deploy-pages`). Runtime is a Vite SPA prerendered to static HTML for crawlers/SEO.
+The repo also hosts a marketing/landing site under `website/` (React 19 + Vite 7 + TS, custom CSS, no UI libs), deployed to GitHub Pages at `https://sri.os.darcas.app/` via `.github/workflows/pages.yml` (trigger: push on `master` touching `website/**`, artifact upload + `deploy-pages`). Runtime is a Vite SPA prerendered to static HTML for crawlers/SEO.
 
 - Build: `cd website && npm run build` → `tsc --noEmit && vite build && node scripts/prerender.mjs` (injects `renderToString(<App/>)` into `dist/index.html` `#root`). Output lands in `website/dist/` (do NOT confuse with the plugin's `dist/`).
 - SEO on-page: `website/index.html` holds `<title>`, meta description/robots, canonical, Open Graph + Twitter cards, and a JSON-LD `@graph` (WebSite + Organization → `https://casertano.name/#organization` + SoftwareApplication). `website/public/` holds `robots.txt`, `sitemap.xml`, `llms.txt`, `llms-full.txt`, `og.png` (1200×630), `favicon.svg`, plus the `CNAME` file copied into `dist/` by CI.

@@ -16,6 +16,18 @@
     "typescript": "^5.8.3",
     "vite": "^7.0.4"
   },
+  "keywords": [
+    "javascript",
+    "open-source",
+    "rollup",
+    "security",
+    "sri",
+    "subresource-integrity",
+    "typescript",
+    "vite-plugin",
+    "web-security"
+  ],
+  "license": "MIT",
   "name": "@darcas/rollup-sub-resource-integrity-website",
   "private": true,
   "scripts": {
@@ -24,5 +36,5 @@
     "preview": "vite preview"
   },
   "type": "module",
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

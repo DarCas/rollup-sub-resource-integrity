@@ -21,16 +21,17 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://github.com/DarCas/rollup-sub-resource-integrity",
+  "homepage": "https://sri.os.darcas.app",
   "keywords": [
-    "build",
-    "html",
-    "integrity",
-    "plugin",
+    "javascript",
+    "open-source",
     "rollup",
     "security",
     "sri",
-    "subresource"
+    "subresource-integrity",
+    "typescript",
+    "vite-plugin",
+    "web-security"
   ],
   "license": "MIT",
   "main": "./dist/index.min.js",
@@ -51,5 +52,5 @@
   "type": "module",
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
-  "version": "2.0.2"
+  "version": "2.0.3"
 }
