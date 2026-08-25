@@ -1,0 +1,113 @@
+# @darcas/rollup-sub-resource-integrity
+
+> A zero-dependency Rollup/Vite plugin that adds Subresource Integrity (SRI) attributes to your HTML
+> files. SRI lets browsers verify that scripts and stylesheets are served without unexpected
+> manipulation, protecting users against CDN compromises and supply-chain tampering.
+
+- Package: `@darcas/rollup-sub-resource-integrity`
+- Type: Rollup plugin (Vite-compatible), Node.js >= 18
+- License: MIT
+- Website: https://sri.os.darcas.app
+- Repository: https://github.com/DarCas/rollup-sub-resource-integrity
+- npm: https://www.npmjs.com/package/@darcas/rollup-sub-resource-integrity
+
+## Overview
+
+`SubResourceIntegrity` is a single-file Rollup plugin that runs during the `generateBundle` phase.
+It scans every HTML file emitted by the build, locates `<script src>` and
+`<link rel="stylesheet|preload|modulepreload">` tags whose URI resolves to an asset in the same
+bundle, hashes the in-memory content, and injects an `integrity` attribute. When a `crossorigin`
+attribute is missing it is added as `crossorigin="anonymous"`, because browsers ignore `integrity`
+on cross-origin requests without a CORS attribute.
+
+The plugin has **zero runtime dependencies** since v2.0.0: HTML rewriting uses a targeted regex
+rather than a DOM parser.
+
+## Features
+
+- Zero runtime dependencies.
+- Automatically calculates integrity hashes for `*.htm` and `*.html` assets.
+- Multiple hashing algorithms: `sha256`, `sha384` (default), `sha512`.
+- Adds `crossorigin="anonymous"` automatically when missing.
+- Integrates seamlessly into the Rollup/Vite build process.
+- Uses a targeted regex over resource tags — no DOM parser required.
+- External URIs (`http(s):`, protocol-relative, `data:`) and resources missing from the bundle are
+  silently skipped.
+
+## Installation
+
+```bash
+npm i -D @darcas/rollup-sub-resource-integrity
+```
+
+Or with yarn:
+
+```bash
+yarn add @darcas/rollup-sub-resource-integrity --dev
+```
+
+> Since v2 the plugin has zero runtime dependencies; upgrading from v1 requires no code changes.
+
+## Usage
+
+In your `vite.config.mts` (or Rollup config):
+
+```ts
+import SubResourceIntegrity from '@darcas/rollup-sub-resource-integrity';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+    plugins: [
+        // ...
+        SubResourceIntegrity(),
+        // ...
+    ],
+});
+```
+
+### Configuration
+
+The plugin accepts an optional parameter to select the hashing algorithm. Default is `sha384`.
+
+```js
+SubResourceIntegrity('sha512');
+```
+
+Supported algorithms:
+
+- `sha256`
+- `sha384` (default)
+- `sha512`
+
+## How It Works
+
+1. During the `generateBundle` phase, the plugin scans the emitted HTML assets in the bundle.
+2. It looks for resource tags (`<script src>` and `<link rel="stylesheet|preload|modulepreload">`)
+   whose URI matches a file in the same bundle.
+3. For each match:
+   - The content is taken from the in-memory bundle (no disk access) and hashed with the selected
+     algorithm.
+   - An `integrity` attribute is added to the tag.
+   - `crossorigin="anonymous"` is added when missing.
+4. External URIs and resources missing from the bundle are silently skipped.
+
+## Migrating from v1 to v2
+
+No code changes are required — the API and usage stay identical. Changes under the hood:
+
+- **Zero runtime dependencies** — `cheerio` removed.
+- **In-memory processing.** Hook moved from `writeBundle` to `generateBundle`.
+- **`crossorigin="anonymous"` added automatically** when missing.
+- **Node.js >= 18** required.
+
+## Contributing
+
+Fork the repository and open a pull request. Keep changes well-tested and documented.
+
+## License
+
+MIT License. See https://github.com/DarCas/rollup-sub-resource-integrity/blob/main/LICENSE.md
+
+## Author
+
+Dario Casertano (DarCas) — https://casertano.name

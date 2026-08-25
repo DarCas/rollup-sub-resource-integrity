@@ -1,0 +1,28 @@
+{
+  "author": {
+    "email": "dario@casertano.name",
+    "name": "Dario Casertano (DarCas)",
+    "url": "https://casertano.name"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@darcas/rollup-sub-resource-integrity": "^2.0.2",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^4.6.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4"
+  },
+  "name": "@darcas/rollup-sub-resource-integrity-website",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && node scripts/prerender.mjs",
+    "preview": "vite preview"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}

@@ -1,0 +1,17 @@
+# @darcas/rollup-sub-resource-integrity
+
+A zero-dependency Rollup plugin that automatically adds Subresource Integrity (SRI) `integrity`
+attributes to the HTML files emitted by your Rollup/Vite build.
+
+It scans the emitted HTML for `<script src>` and `<link rel="stylesheet|preload|modulepreload">`
+tags, hashes the matching bundle assets in memory (sha256/sha384/sha512), and injects the
+`integrity` attribute — adding `crossorigin="anonymous"` automatically when missing.
+
+## Key URLs
+
+- [Website](https://sri.os.darcas.app/)
+- [GitHub repository](https://github.com/DarCas/rollup-sub-resource-integrity)
+- [Full documentation (llms-full.txt)](https://sri.os.darcas.app/llms-full.txt)
+- [npm package](https://www.npmjs.com/package/@darcas/rollup-sub-resource-integrity)
+- [README on GitHub](https://github.com/DarCas/rollup-sub-resource-integrity#readme)
+- [License (MIT)](https://github.com/DarCas/rollup-sub-resource-integrity/blob/main/LICENSE.md)
