@@ -10,6 +10,17 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
+const pluginPkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'))
+
+const injectSoftwareVersion = () => ( {
+    name: 'inject-software-version',
+    transformIndexHtml(html: string): string {
+        return html.replace(
+            /("softwareVersion"\s*:\s*")([^"]*)(")/,
+            `$1${pluginPkg.version}$3`,
+        )
+    },
+} )
 
 export default defineConfig({
     define: {
@@ -18,5 +29,6 @@ export default defineConfig({
     plugins: [
         react(),
         SubResourceIntegrity(),
+        injectSoftwareVersion(),
     ],
 })

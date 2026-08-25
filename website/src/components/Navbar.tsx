@@ -58,10 +58,17 @@ export function Navbar() {
 
     const closeMenu = () => setMenuOpen(false)
 
+    const onBrandClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault()
+        window.history.pushState(null, '', '/')
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        window.scrollTo({top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth'})
+    }
+
     return (
         <header className={`nav${scrolled ? ' nav--scrolled' : ''}`}>
             <div className="container nav__inner">
-                <a href="#top" className="nav__brand" aria-label="Rollup SRI — home">
+                <a href="/" className="nav__brand" aria-label="Rollup SRI — home" onClick={onBrandClick}>
                     <LogoMark/>
                     Rollup SRI
                 </a>
